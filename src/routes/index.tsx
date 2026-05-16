@@ -71,17 +71,32 @@ function Index() {
     setLoading(true);
     setError(null);
     const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries());
+    const raw = Object.fromEntries(formData.entries());
+
+    // Sanitize all string values — trim whitespace and strip HTML tags
+    const data: Record<string, string> = {};
+    for (const [key, val] of Object.entries(raw)) {
+      const str = String(val).trim().replace(/<[^>]*>/g, "");
+      if (str) data[key] = str;
+    }
+
     try {
       const res = await fetch("http://127.0.0.1:8000/api/influencers", {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Submission failed");
+      if (!res.ok) {
+        const err = await res.json().catch(() => null);
+        if (err?.errors) {
+          const firstErr = Object.values(err.errors).flat()[0];
+          throw new Error(String(firstErr));
+        }
+        throw new Error(err?.message ?? "Submission failed");
+      }
       setSubmitted(true);
-    } catch {
-      setError("We couldn't submit your application. Please check your details and try again.");
+    } catch (err: any) {
+      setError(err?.message ?? "We couldn't submit your application. Please check your details and try again.");
     } finally {
       setLoading(false);
     }
