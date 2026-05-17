@@ -36,11 +36,37 @@ function AdminDashboard() {
   async function fetchStats() {
     setLoading(true);
     try {
-      const res = await fetch(`${API}/admin/stats`, {
-        headers: { Accept: "application/json" },
+      await new Promise(r => setTimeout(r, 400));
+      setStats({
+        total_visits: 12450,
+        unique_visits: 8200,
+        total_registered: 432,
+        today_visits: 120,
+        today_registered: 15,
+        visits_per_day: [
+          { date: new Date(Date.now() - 6 * 86400000).toISOString().slice(0, 10), count: 800 },
+          { date: new Date(Date.now() - 5 * 86400000).toISOString().slice(0, 10), count: 950 },
+          { date: new Date(Date.now() - 4 * 86400000).toISOString().slice(0, 10), count: 1100 },
+          { date: new Date(Date.now() - 3 * 86400000).toISOString().slice(0, 10), count: 1050 },
+          { date: new Date(Date.now() - 2 * 86400000).toISOString().slice(0, 10), count: 1200 },
+          { date: new Date(Date.now() - 1 * 86400000).toISOString().slice(0, 10), count: 1300 },
+          { date: new Date().toISOString().slice(0, 10), count: 120 },
+        ],
+        registrations_per_day: [
+          { date: new Date(Date.now() - 6 * 86400000).toISOString().slice(0, 10), count: 12 },
+          { date: new Date(Date.now() - 5 * 86400000).toISOString().slice(0, 10), count: 15 },
+          { date: new Date(Date.now() - 4 * 86400000).toISOString().slice(0, 10), count: 20 },
+          { date: new Date(Date.now() - 3 * 86400000).toISOString().slice(0, 10), count: 18 },
+          { date: new Date(Date.now() - 2 * 86400000).toISOString().slice(0, 10), count: 25 },
+          { date: new Date(Date.now() - 1 * 86400000).toISOString().slice(0, 10), count: 30 },
+          { date: new Date().toISOString().slice(0, 10), count: 15 },
+        ],
+        recent_registrations: [
+          { id: 1, fullname: "Jane Doe", email: "jane@example.com", instagram_username: "janedoe", country_region: "USA", created_at: new Date().toISOString() },
+          { id: 2, fullname: "John Smith", email: "john@example.com", instagram_username: "johnsmith", country_region: "UK", created_at: new Date(Date.now() - 86400000).toISOString() },
+          { id: 3, fullname: "Alice Johnson", email: "alice@example.com", instagram_username: "alicej", country_region: "Canada", created_at: new Date(Date.now() - 2 * 86400000).toISOString() },
+        ],
       });
-      if (!res.ok) throw new Error("Failed");
-      setStats(await res.json());
       setLastRefreshed(new Date());
     } finally {
       setLoading(false);

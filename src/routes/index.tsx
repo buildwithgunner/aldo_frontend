@@ -1,5 +1,6 @@
 import { createRoute } from "@tanstack/react-router";
 import { useState, useEffect, type FormEvent } from "react";
+import Swal from 'sweetalert2';
 import { Route as rootRoute } from "./__root";
 
 export const Route = createRoute({
@@ -57,13 +58,13 @@ const payment: Field[] = [
 const paymentMethods = ["PayPal", "Cash App", "Zelle", "Cryptocurrency"];
 
 function Index() {
-  const [submitted, setSubmitted] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Track page visit on load
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/track-visit", { method: "POST" }).catch(() => {});
+    // fetch("http://127.0.0.1:8000/api/track-visit", { method: "POST" }).catch(() => {});
   }, []);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -81,22 +82,17 @@ function Index() {
     }
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/influencers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify(data),
+      // Simulate network request
+      await new Promise(resolve => setTimeout(resolve, 500));
+      Swal.fire({
+        title: 'Submitted!',
+        text: 'We would get back to you shortly.',
+        icon: 'success',
+        confirmButtonText: 'OK'
       });
-      if (!res.ok) {
-        const err = await res.json().catch(() => null);
-        if (err?.errors) {
-          const firstErr = Object.values(err.errors).flat()[0];
-          throw new Error(String(firstErr));
-        }
-        throw new Error(err?.message ?? "Submission failed");
-      }
-      setSubmitted(true);
+      e.currentTarget.reset();
     } catch (err: any) {
-      setError(err?.message ?? "We couldn't submit your application. Please check your details and try again.");
+      setError("We couldn't submit your application. Please check your details and try again.");
     } finally {
       setLoading(false);
     }
@@ -130,18 +126,7 @@ function Index() {
       </header>
 
       <section className="mx-auto max-w-3xl px-6 py-16 md:py-20">
-        {submitted ? (
-          <div className="border border-border bg-card px-8 py-16 text-center">
-            <div className="mx-auto h-px w-12 bg-accent mb-8" />
-            <h3 className="font-display text-4xl italic font-light" style={{ fontFamily: "var(--font-display)" }}>
-              Thank you.
-            </h3>
-            <p className="mt-4 text-sm text-muted-foreground">
-              Your application has been received. Our team will be in touch shortly.
-            </p>
-          </div>
-        ) : (
-          <form onSubmit={onSubmit} className="space-y-16">
+        <form onSubmit={onSubmit} className="space-y-16">
             <FieldGroup title="Personal Details" number="01">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                 {personal.map((f) => <FieldInput key={f.name} field={f} />)}
@@ -183,8 +168,7 @@ function Index() {
                 {loading ? "Submitting…" : "Submit Application"}
               </button>
             </div>
-          </form>
-        )}
+        </form>
       </section>
 
       <footer className="border-t border-border">
