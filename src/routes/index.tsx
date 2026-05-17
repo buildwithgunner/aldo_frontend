@@ -69,9 +69,10 @@ function Index() {
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const form = e.currentTarget;
     setLoading(true);
     setError(null);
-    const formData = new FormData(e.currentTarget);
+    const formData = new FormData(form);
     const raw = Object.fromEntries(formData.entries());
 
     // Sanitize all string values — trim whitespace and strip HTML tags
@@ -90,8 +91,9 @@ function Index() {
         icon: 'success',
         confirmButtonText: 'OK'
       });
-      e.currentTarget.reset();
+      form.reset();
     } catch (err: any) {
+      console.error(err);
       setError("We couldn't submit your application. Please check your details and try again.");
     } finally {
       setLoading(false);
